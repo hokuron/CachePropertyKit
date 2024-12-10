@@ -48,7 +48,7 @@ public final class CacheContainer: Sendable {
 }
 
 final class ThreadSafeDictionary<V: Hashable & Sendable, T: Sendable>: Collection, @unchecked Sendable {
-    private var dictionary: [V: T]
+    private var dictionary: [V : T]
     private let concurrentQueue = DispatchQueue(label: "Dictionary Barrier Queue", attributes: .concurrent)
 
     var keys: Dictionary<V, T>.Keys {
