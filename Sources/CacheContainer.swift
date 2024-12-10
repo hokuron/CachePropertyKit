@@ -47,35 +47,35 @@ public final class CacheContainer: Sendable {
     }
 }
 
-final class ThreadSafeDictionary<V: Hashable & Sendable, T: Sendable>: Collection, @unchecked Sendable {
-    private var dictionary: [V : T]
+final class ThreadSafeDictionary<Key: Hashable & Sendable, Value: Sendable>: Collection, @unchecked Sendable {
+    private var dictionary: [Key : Value]
     private let concurrentQueue = DispatchQueue(label: "Dictionary Barrier Queue", attributes: .concurrent)
 
-    var keys: Dictionary<V, T>.Keys {
+    var keys: Dictionary<Key, Value>.Keys {
         concurrentQueue.sync { dictionary.keys }
     }
 
-    var values: Dictionary<V, T>.Values {
+    var values: Dictionary<Key, Value>.Values {
         concurrentQueue.sync { dictionary.values }
     }
 
-    var startIndex: Dictionary<V, T>.Index {
+    var startIndex: Dictionary<Key, Value>.Index {
         concurrentQueue.sync { dictionary.startIndex }
     }
 
-    var endIndex: Dictionary<V, T>.Index {
+    var endIndex: Dictionary<Key, Value>.Index {
         concurrentQueue.sync { dictionary.endIndex }
     }
 
-    init(dictionary: [V : T] = [:]) {
+    init(dictionary: [Key : Value] = [:]) {
         self.dictionary = dictionary
     }
 
-    func index(after i: Dictionary<V, T>.Index) -> Dictionary<V, T>.Index {
+    func index(after i: Dictionary<Key, Value>.Index) -> Dictionary<Key, Value>.Index {
         concurrentQueue.sync { dictionary.index(after: i) }
     }
 
-    subscript(key: V) -> T? {
+    subscript(key: Key) -> Value? {
         set(newValue) {
             concurrentQueue.async(flags: .barrier) { [weak self] in
                 self?.dictionary[key] = newValue
@@ -86,11 +86,11 @@ final class ThreadSafeDictionary<V: Hashable & Sendable, T: Sendable>: Collectio
         }
     }
 
-    subscript(index: Dictionary<V, T>.Index) -> Dictionary<V, T>.Element {
+    subscript(index: Dictionary<Key, Value>.Index) -> Dictionary<Key, Value>.Element {
         concurrentQueue.sync { dictionary[index] }
     }
 
-    func removeValue(forKey key: V) {
+    func removeValue(forKey key: Key) {
         concurrentQueue.async(flags: .barrier) { [weak self] in
             self?.dictionary.removeValue(forKey: key)
         }
