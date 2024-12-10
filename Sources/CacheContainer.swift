@@ -1,6 +1,6 @@
 import Foundation
 
-public final class CacheContainer {
+public final class CacheContainer: Sendable {
     static let shared = CacheContainer()
 
     public static func clearAll() {
@@ -17,7 +17,7 @@ public final class CacheContainer {
         }
     }
 
-    var storage: ThreadSafeDictionary<CacheKey, Data> = .init()
+    let storage: ThreadSafeDictionary<CacheKey, Data> = .init()
 
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
@@ -47,7 +47,7 @@ public final class CacheContainer {
     }
 }
 
-final class ThreadSafeDictionary<V: Hashable, T>: Collection {
+final class ThreadSafeDictionary<V: Hashable & Sendable, T: Sendable>: Collection, @unchecked Sendable {
     private var dictionary: [V: T]
     private let concurrentQueue = DispatchQueue(label: "Dictionary Barrier Queue", attributes: .concurrent)
 
