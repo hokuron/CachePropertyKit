@@ -15,7 +15,7 @@ final class CacheContainerTests: XCTestCase {
         sut.setValue(true, forKey: "key.value3")
 
         CacheContainer.clearAll()
-        XCTAssertTrue(sut.storage.isEmpty)
+        XCTAssertTrue(sut.storage.withLock(\.isEmpty))
     }
 
     func test_clearAllWhere_remove_only_specified_caches() {
@@ -24,7 +24,7 @@ final class CacheContainerTests: XCTestCase {
         sut.setValue(true, forKey: "key.value3")
 
         CacheContainer.clearAll(where: { $0 == "key.value1" })
-        XCTAssertEqual(sut.storage.keys.sorted(), ["key.value2", "key.value3"])
+        XCTAssertEqual(sut.storage.withLock(\.keys).sorted(), ["key.value2", "key.value3"])
     }
 
     func test_value_return_nil_when_a_non_cached_key_is_given() {
@@ -47,7 +47,7 @@ final class CacheContainerTests: XCTestCase {
             }
         }
         await Task.megaYield()
-        XCTAssertEqual(sut.storage.count, 100)
+        XCTAssertEqual(sut.storage.withLock(\.count), 100)
     }
 }
 
