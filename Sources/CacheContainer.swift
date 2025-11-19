@@ -12,7 +12,7 @@ public final class CacheContainer: Sendable {
         }
     }
 
-    public static func clearAll(where shouldBeCleared: (CacheKey) -> Bool) {
+    public static func clearAll(where shouldBeCleared: @Sendable (CacheKey) -> Bool) {
         shared.storage.withLock { storage in
             storage.keys.forEach {
                 if shouldBeCleared($0) {
